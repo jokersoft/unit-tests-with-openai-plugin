@@ -1,18 +1,21 @@
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
 <idea-plugin>
-    <id>org.jetbrains.plugins.template</id>
-    <name>IntelliJ Platform Plugin Template</name>
-    <vendor>JetBrains</vendor>
+    <id>org.jetbrains.plugins.utwoai</id>
+    <name>UTWOAI - Unit Tests with OpenAI</name>
+    <vendor>jokersoft</vendor>
 
     <depends>com.intellij.modules.platform</depends>
+    <description>
+        <![CDATA[
+      Adds a <i>Generate the Unit Test</i> menu group anchored last in the <b>Main Menu</b>
+    ]]>
+    </description>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="org.jetbrains.plugins.template.services.MyApplicationService"/>
-        <projectService serviceImplementation="org.jetbrains.plugins.template.services.MyProjectService"/>
-    </extensions>
-
-    <applicationListeners>
-        <listener class="org.jetbrains.plugins.template.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
+    <actions>
+        <group id="MyPlugin.GreetingMenu" text="Greeting" description="Greeting menu">
+            <add-to-group group-id="MainMenu" anchor="last"/>
+            <add-to-group group-id="ToolsMenu" anchor="last"/>
+            <action id="MyPlugin.Hello" class="jokersoft.utwoai.HelloAction" text="Hello" description="Says hello"/>
+        </group>
+    </actions>
 </idea-plugin>
