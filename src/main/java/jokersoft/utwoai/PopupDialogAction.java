@@ -1,17 +1,21 @@
-// Copyright 2000-2022 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file.
+package jokersoft.utwoai;
 
-package org.intellij.sdk.action;
-
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
-import com.intellij.pom.Navigatable;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
-import javax.swing.*;
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 /**
  * Action class to demonstrate how to interact with the IntelliJ Platform.
@@ -32,19 +36,6 @@ public class PopupDialogAction extends AnAction {
   }
 
   /**
-   * This constructor is used to support dynamically added menu actions.
-   * It sets the text, description to be displayed for the menu item.
-   * Otherwise, the default AnAction constructor is used by the IntelliJ Platform.
-   *
-   * @param text        The text to be displayed as a menu item.
-   * @param description The description of the menu item.
-   * @param icon        The icon to be used with the menu item.
-   */
-  public PopupDialogAction(@Nullable String text, @Nullable String description, @Nullable Icon icon) {
-    super(text, description, icon);
-  }
-
-  /**
    * Gives the user feedback when the dynamic action menu is chosen.
    * Pops a simple message dialog. See the psi_demo plugin for an
    * example of how to use {@link AnActionEvent} to access data.
@@ -55,14 +46,51 @@ public class PopupDialogAction extends AnAction {
   public void actionPerformed(@NotNull AnActionEvent event) {
     // Using the event, create and show a dialog
     Project currentProject = event.getProject();
-    StringBuilder dlgMsg = new StringBuilder(event.getPresentation().getText() + " Selected!");
+    Document doc = event.getRequiredData(CommonDataKeys.EDITOR).getDocument();
+    String codeToTest = doc.getText();
     String dlgTitle = event.getPresentation().getDescription();
-    // If an element is selected in the editor, add info about it.
-    Navigatable nav = event.getData(CommonDataKeys.NAVIGATABLE);
-    if (nav != null) {
-      dlgMsg.append(String.format("\nSelected Element: %s", nav.toString()));
+    String prompt = String.format("%s\n# Unit test \n", codeToTest);
+
+    CompletionModel completionModel = new CompletionModel(prompt);
+    String requestPayload = null;
+    try {
+      requestPayload = new ObjectMapper().writeValueAsString(completionModel);
+    } catch (JsonProcessingException e) {
+      e.printStackTrace();
     }
-    Messages.showMessageDialog(currentProject, dlgMsg.toString(), dlgTitle, Messages.getInformationIcon());
+
+    HttpRequest request = null;
+    try {
+      request = HttpRequest.newBuilder()
+              .uri(new URI("https://api.openai.com/v1/completions"))
+              .header("Content-Type", "application/json")
+              .header("Authorization", "Bearer ")
+              .POST(HttpRequest.BodyPublishers.ofString(requestPayload))
+              .build();
+    } catch (URISyntaxException e) {
+      e.printStackTrace();
+    }
+
+    HttpResponse<String> response = null;
+    try {
+      response = HttpClient
+              .newBuilder()
+              .build()
+              .send(request, HttpResponse.BodyHandlers.ofString());
+    } catch (IOException | InterruptedException e) {
+      e.printStackTrace();
+    }
+
+    String json = response.body();
+
+    if (!json.isEmpty()) {
+      try {
+        CompletionResponseModel completionResponse = new ObjectMapper().readValue(json, CompletionResponseModel.class);
+        Messages.showMessageDialog(currentProject, completionResponse.choices[0].text, dlgTitle, Messages.getInformationIcon());
+      } catch (JsonProcessingException e) {
+        e.printStackTrace();
+      }
+    }
   }
 
   /**
@@ -77,5 +105,4 @@ public class PopupDialogAction extends AnAction {
     Project project = e.getProject();
     e.getPresentation().setEnabledAndVisible(project != null);
   }
-
 }

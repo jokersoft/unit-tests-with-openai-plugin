@@ -17,13 +17,9 @@ Additional features of the plugin:
 
 ### Actions
 
-| ID                                                 | Implementation                                            | Base Action Class |
-|----------------------------------------------------|-----------------------------------------------------------|-------------------|
-| `org.intellij.sdk.action.GroupPopDialogAction`     | [PopupDialogAction][file:PopupDialogAction]               | `AnAction`        |
-| `org.intellij.sdk.action.PopupDialogAction`        | [PopupDialogAction][file:PopupDialogAction]               | `AnAction`        |
-| `org.intellij.sdk.action.CustomGroupedAction`      | [PopupDialogAction][file:PopupDialogAction]               | `AnAction`        |
-| `org.intellij.sdk.action.CustomDefaultActionGroup` | [CustomDefaultActionGroup][file:CustomDefaultActionGroup] | `ActionGroup`     |
-| `org.intellij.sdk.action.DynamicActionGroup`       | [DynamicActionGroup][file:DynamicActionGroup]             | `ActionGroup`     |
+| ID                                          | Implementation                                            | Base Action Class |
+|---------------------------------------------|-----------------------------------------------------------|-------------------|
+| `jokersoft.utwoai.PopupDialogAction`        | [PopupDialogAction][file:PopupDialogAction]               | `AnAction`        |
 
 *Reference: [Action System in IntelliJ SDK Docs][docs:actions]*
 
