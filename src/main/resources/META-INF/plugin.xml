@@ -40,8 +40,15 @@
     <action id="jokersoft.utwoai.PopupDialogAction" class="jokersoft.utwoai.PopupDialogAction"
             icon="SdkIcons.Sdk_default_icon">
       <add-to-group group-id="ToolsMenu" anchor="first"/>
-      <override-text place="MainMenu" text="Generate Unit Tests"/>
+      <override-text place="MainMenu" text="UTWOAI: Generate Unit Tests"/>
     </action>
   </actions>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationConfigurable parentId="tools" instance="jokersoft.utwoai.settings.AppSettingsConfigurable"
+                             id="org.intellij.sdk.settings.AppSettingsConfigurable"
+                             displayName="UTWOAI: Plugin Settings"/>
+    <applicationService serviceImplementation="jokersoft.utwoai.settings.AppSettingsState"/>
+  </extensions>
 
 </idea-plugin>

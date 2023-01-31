@@ -8,6 +8,7 @@ import com.intellij.openapi.actionSystem.CommonDataKeys;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.Messages;
+import jokersoft.utwoai.settings.AppSettingsState;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -50,8 +51,10 @@ public class PopupDialogAction extends AnAction {
     String codeToTest = doc.getText();
     String dlgTitle = event.getPresentation().getDescription();
     String prompt = String.format("%s\n# Unit test \n", codeToTest);
+    String apiKey = AppSettingsState.getInstance().apiKey;
+    String maxTokens = AppSettingsState.getInstance().maxTokens;
 
-    CompletionModel completionModel = new CompletionModel(prompt);
+    CompletionModel completionModel = new CompletionModel(prompt, maxTokens);
     String requestPayload = null;
     try {
       requestPayload = new ObjectMapper().writeValueAsString(completionModel);
@@ -64,7 +67,7 @@ public class PopupDialogAction extends AnAction {
       request = HttpRequest.newBuilder()
               .uri(new URI("https://api.openai.com/v1/completions"))
               .header("Content-Type", "application/json")
-              .header("Authorization", "Bearer ")
+              .header("Authorization", String.format("Bearer %s", apiKey))
               .POST(HttpRequest.BodyPublishers.ofString(requestPayload))
               .build();
     } catch (URISyntaxException e) {
@@ -91,6 +94,8 @@ public class PopupDialogAction extends AnAction {
         e.printStackTrace();
       }
     }
+    //TODO: catch 403
+
   }
 
   /**
