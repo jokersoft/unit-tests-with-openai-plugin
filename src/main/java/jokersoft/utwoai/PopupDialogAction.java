@@ -2,12 +2,21 @@ package jokersoft.utwoai;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.intellij.lang.Language;
+import com.intellij.lang.LanguageUtil;
 import com.intellij.openapi.actionSystem.AnAction;
 import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.CommonDataKeys;
+import com.intellij.openapi.command.WriteCommandAction;
 import com.intellij.openapi.editor.Document;
+import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.EditorFactory;
+import com.intellij.openapi.fileEditor.FileDocumentManager;
+import com.intellij.openapi.fileTypes.FileType;
+import com.intellij.openapi.fileTypes.LanguageFileType;
 import com.intellij.openapi.project.Project;
-import com.intellij.openapi.ui.Messages;
+import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.psi.*;
 import jokersoft.utwoai.settings.AppSettingsState;
 import org.jetbrains.annotations.NotNull;
 
@@ -45,11 +54,14 @@ public class PopupDialogAction extends AnAction {
    */
   @Override
   public void actionPerformed(@NotNull AnActionEvent event) {
+    // Get all the required data from data keys
+    // Editor and Project were verified in update(), so they are not null.
+    final Editor editor = event.getRequiredData(CommonDataKeys.EDITOR);
+    final Project project = event.getRequiredData(CommonDataKeys.PROJECT);
+    final Document document = editor.getDocument();
+
     // Using the event, create and show a dialog
-    Project currentProject = event.getProject();
-    Document doc = event.getRequiredData(CommonDataKeys.EDITOR).getDocument();
-    String codeToTest = doc.getText();
-    String dlgTitle = event.getPresentation().getDescription();
+    String codeToTest = document.getText();
     String prompt = String.format("%s\n# Unit test \n", codeToTest);
     String apiKey = AppSettingsState.getInstance().apiKey;
     String maxTokens = AppSettingsState.getInstance().maxTokens;
@@ -89,7 +101,25 @@ public class PopupDialogAction extends AnAction {
     if (!json.isEmpty()) {
       try {
         CompletionResponseModel completionResponse = new ObjectMapper().readValue(json, CompletionResponseModel.class);
-        Messages.showMessageDialog(currentProject, completionResponse.choices[0].text, dlgTitle, Messages.getInformationIcon());
+        String completionText = completionResponse.choices[0].text;
+
+//    Language language = LanguageUtil.getLanguageForPsi(project, virtualFile, fileType);
+
+        final VirtualFile projectDir = project.getBaseDir();
+        if (projectDir != null) {
+          final PsiManager psiManager = PsiManager.getInstance(project);
+          PsiDirectory targetDir = psiManager.findDirectory(projectDir);
+          assert targetDir != null;
+          PsiFile testFile = targetDir.createFile("test.java");
+
+          final Document testDocument = PsiDocumentManager.getInstance(project).getDocument(testFile);
+          if (testDocument != null) {
+            WriteCommandAction.runWriteCommandAction(project, () -> {
+              testDocument.setText(completionText);
+//              PsiDocumentManager.getInstance(project).commitDocument(testDocument);
+            });
+          }
+        }
       } catch (JsonProcessingException e) {
         e.printStackTrace();
       }
