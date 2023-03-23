@@ -1,42 +1,36 @@
-# unit-tests-with-openai-plugin
+# Action Basics Sample Project [![JetBrains IntelliJ Platform SDK Docs](https://jb.gg/badges/docs.svg)][docs]
+*Reference: [Action System in IntelliJ SDK Docs][docs:actions]*
 
-![Build](https://github.com/jokersoft/unit-tests-with-openai-plugin/workflows/Build/badge.svg)
-[![Version](https://img.shields.io/jetbrains/plugin/v/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
-[![Downloads](https://img.shields.io/jetbrains/plugin/d/PLUGIN_ID.svg)](https://plugins.jetbrains.com/plugin/PLUGIN_ID)
+## Quickstart
 
-## Template ToDo list
-- [x] Create a new [IntelliJ Platform Plugin Template][template] project.
-- [ ] Get familiar with the [template documentation][template].
-- [ ] Verify the [pluginGroup](./gradle.properties), [plugin ID](./src/main/resources/META-INF/plugin.xml) and [sources package](./src/main/kotlin).
-- [ ] Review the [Legal Agreements](https://plugins.jetbrains.com/docs/marketplace/legal-agreements.html?from=IJPluginTemplate).
-- [ ] [Publish a plugin manually](https://plugins.jetbrains.com/docs/intellij/publishing-plugin.html?from=IJPluginTemplate) for the first time.
-- [ ] Set the Plugin ID in the above README badges.
-- [ ] Set the [Plugin Signing](https://plugins.jetbrains.com/docs/intellij/plugin-signing.html?from=IJPluginTemplate) related [secrets](https://github.com/JetBrains/intellij-platform-plugin-template#environment-variables).
-- [ ] Set the [Deployment Token](https://plugins.jetbrains.com/docs/marketplace/plugin-upload.html?from=IJPluginTemplate).
-- [ ] Click the <kbd>Watch</kbd> button on the top of the [IntelliJ Platform Plugin Template][template] to be notified about releases containing new features and fixes.
+The Action Basics Sample Project demonstrates the process of registering actions in various configurations.
+Each action is an extension of the [`AnAction`][sdk:AnAction] abstract class and brings the possibility of extending the IDE with an event performed with the user interaction - i.e., clicking the button, using the keyboard or mouse shortcuts.
 
-<!-- Plugin description -->
-This Fancy IntelliJ Platform Plugin is going to be your implementation of the brilliant ideas that you have.
+This Plugin registers the [`PopupDialogAction`][file:PopupDialogAction] action, which provides a popup dialog as a feedback, in three different ways:
+- by assigning the keyboard (<kbd>Ctrl/Cmd</kbd>+<kbd>Alt</kbd>+<kbd>A</kbd>, <kbd>C</kbd>) and mouse shortcuts (<kbd>Ctrl/Cmd</kbd> + <kbd>Mouse Button 3</kbd> + <kbd>Double Click</kbd>),
+- by adding an action to the `ToolsMenu` directly, and as part of new groups added to the Tools menu,
+- by adding an action to a new group in the `EditorPopupMenu`, which is the Editor's context menu.
 
-This specific section is a source for the [plugin.xml](/src/main/resources/META-INF/plugin.xml) file which will be extracted by the [Gradle](/build.gradle.kts) during the build process.
+Additional features of the plugin:
+- [Using the `<override-text>`][docs:action-override] element in an [`<action>`][docs:plugin-configuration-file:actions:action] element is demonstrated in the `plugin.xml` declaration to add the `PopupDialogAction` action directly to the `ToolsMenu`.
+- [Localization of action and group][docs:action-locale] `text` and `description` attributes using a [`<resource-bundle>`][docs:plugin-configuration-file:resource-bundle] is demonstrated in the declaration to add a new group to the `EditorPopupMenu`.
 
-To keep everything working, do not remove `<!-- ... -->` sections. 
-<!-- Plugin description end -->
+### Actions
 
-## Installation
+| ID                                          | Implementation                                            | Base Action Class |
+|---------------------------------------------|-----------------------------------------------------------|-------------------|
+| `jokersoft.utwoai.PopupDialogAction`        | [PopupDialogAction][file:PopupDialogAction]               | `AnAction`        |
 
-- Using IDE built-in plugin system:
-  
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>Marketplace</kbd> > <kbd>Search for "unit-tests-with-openai-plugin"</kbd> >
-  <kbd>Install Plugin</kbd>
-  
-- Manually:
-
-  Download the [latest release](https://github.com/jokersoft/unit-tests-with-openai-plugin/releases/latest) and install it manually using
-  <kbd>Settings/Preferences</kbd> > <kbd>Plugins</kbd> > <kbd>⚙️</kbd> > <kbd>Install plugin from disk...</kbd>
+*Reference: [Action System in IntelliJ SDK Docs][docs:actions]*
 
 
----
-Plugin based on the [IntelliJ Platform Plugin Template][template].
+[docs]: https://plugins.jetbrains.com/docs/intellij/
+[docs:actions]: https://plugins.jetbrains.com/docs/intellij/basic-action-system.html
+[docs:action-override]: https://plugins.jetbrains.com/docs/intellij/basic-action-system.html#setting-the-override-text-element
+[docs:action-locale]: https://plugins.jetbrains.com/docs/intellij/basic-action-system.html#localizing-actions-and-groups
+[docs:plugin-configuration-file:actions:action]: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html#idea-plugin__actions__action
+[docs:plugin-configuration-file:resource-bundle]: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html#idea-plugin__resource-bundle
 
-[template]: https://github.com/JetBrains/intellij-platform-plugin-template
+[file:PopupDialogAction]: ./src/main/java/org/intellij/sdk/action/PopupDialogAction.java
+[file:CustomDefaultActionGroup]: ./src/main/java/org/intellij/sdk/action/CustomDefaultActionGroup.java
+[file:DynamicActionGroup]: ./src/main/java/org/intellij/sdk/action/DynamicActionGroup.java

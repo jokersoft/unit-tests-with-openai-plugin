@@ -1,18 +1,54 @@
+<!-- Copyright 2000-2022 JetBrains s.r.o. and other contributors. Use of this source code is governed by the Apache 2.0 license that can be found in the LICENSE file. -->
 <!-- Plugin Configuration File. Read more: https://plugins.jetbrains.com/docs/intellij/plugin-configuration-file.html -->
+
 <idea-plugin>
-    <id>com.github.jokersoft.unittestswithopenaiplugin</id>
-    <name>IntelliJ Platform Plugin unit-tests-with-openai-plugin</name>
-    <vendor>jokersoft</vendor>
 
-    <depends>com.intellij.modules.platform</depends>
+  <!-- Unique id for this plugin. Must stay constant for the life of the plugin. -->
+  <id>jokersoft.utwoai</id>
 
-    <extensions defaultExtensionNs="com.intellij">
-        <applicationService serviceImplementation="com.github.jokersoft.unittestswithopenaiplugin.services.MyApplicationService"/>
-        <projectService serviceImplementation="com.github.jokersoft.unittestswithopenaiplugin.services.MyProjectService"/>
-    </extensions>
+  <!-- Text to display as name on Preferences/Settings | Plugin page -->
+  <name>UTwOAI: Unit Tests with OpeAI</name>
 
-    <applicationListeners>
-        <listener class="com.github.jokersoft.unittestswithopenaiplugin.listeners.MyProjectManagerListener"
-                  topic="com.intellij.openapi.project.ProjectManagerListener"/>
-    </applicationListeners>
+  <!-- Indicate this plugin can be loaded in all IntelliJ Platform-based products. -->
+  <depends>com.intellij.modules.platform</depends>
+
+  <!-- Text to display as description on Preferences/Settings | Plugin page -->
+  <description>
+    <![CDATA[
+      Generates Unit Tests with OpeAI.<br> Adds action to the Tools menu.
+    ]]>
+  </description>
+  <change-notes>
+    <![CDATA[
+      <ul>
+        <li><b>0.0.1</b>Initial implementation.</li>
+      </ul>
+    ]]>
+  </change-notes>
+
+  <!-- Text to display as company information on Preferences/Settings | Plugin page -->
+  <vendor url="https://plugins.jetbrains.com">IntelliJ Platform SDK</vendor>
+
+  <!-- Declare the default resource location for localizing menu strings -->
+  <resource-bundle>messages.UtwoaiBundle</resource-bundle>
+
+  <actions>
+    <!--
+      See https://plugins.jetbrains.com/docs/intellij/basic-action-system.html#registering-actions
+      for information about the elements and attributes used for actions and groups.
+    -->
+    <action id="jokersoft.utwoai.PopupDialogAction" class="jokersoft.utwoai.PopupDialogAction"
+            icon="SdkIcons.Sdk_default_icon">
+      <add-to-group group-id="ToolsMenu" anchor="first"/>
+      <override-text place="MainMenu" text="UTWOAI: Generate Unit Tests"/>
+    </action>
+  </actions>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <applicationConfigurable parentId="tools" instance="jokersoft.utwoai.settings.AppSettingsConfigurable"
+                             id="org.intellij.sdk.settings.AppSettingsConfigurable"
+                             displayName="UTWOAI: Plugin Settings"/>
+    <applicationService serviceImplementation="jokersoft.utwoai.settings.AppSettingsState"/>
+  </extensions>
+
 </idea-plugin>
